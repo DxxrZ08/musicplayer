@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MusicStream — Home</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Tailwind (Play CDN for prototype) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100">
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="https://via.placeholder.com/40/1DB954/ffffff?text=M" width="40" height="40" style="border-radius:6px;" alt="logo">
+        <div>
+          <div class="fw-bold">MusicStream</div>
+          <div class="small muted">Your music, everywhere</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="index.html" class="active">Home</a>
+        <a href="browse.html">Browse</a>
+        <a href="library.html">Library</a>
+        <a href="playlist.html">Playlists</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+
+      <div class="section-title">Your Library</div>
+      <nav class="nav">
+        <a href="library.html">Liked Songs</a>
+        <a href="playlist.html">My Playlists</a>
+      </nav>
+
+      <div style="flex:1"></div>
+      <div class="small muted">© MusicStream</div>
+    </aside>
+
+    <main class="main">
+
+  <!-- HERO -->
+  <header class="hero text-center py-8">
+    <div class="container">
+      <h1 class="display-5 fw-bold">MusicStream — Beautiful UX for music lovers</h1>
+      <p class="lead text-slate-200">Trending songs, multi-language, and a lightweight local admin — no server required.</p>
+      <div class="mt-3">
+        <a class="btn btn-light me-2" href="browse.html">Browse Music</a>
+        <a class="btn btn-outline-light" href="search.html">Search</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin panel (index only) -->
+  <section id="adminPanel" class="container mt-4 d-none">
+    <div class="card p-3 mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0">Admin Dashboard (Quick Access)</h5>
+          <div class="small text-slate-400">Visible only when admin is logged in</div>
+        </div>
+        <div>
+          <a class="btn btn-outline-primary btn-sm me-2" href="admin-dashboard.html">Open Full Dashboard</a>
+          <button id="adminLogoutInline" class="btn btn-outline-danger btn-sm">Logout</button>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <div class="p-3 glass text-center">
+            <div class="small text-muted">Total songs</div>
+            <div id="adminTotalSongs" class="fw-bold display-6">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 glass text-center">
+            <div class="small text-muted">Playlists</div>
+            <div id="adminTotalPlaylists" class="fw-bold display-6">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 glass text-center">
+            <div class="small text-muted">Users</div>
+            <div id="adminTotalUsers" class="fw-bold display-6">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 glass text-center">
+            <div class="small text-muted">Recent uploads</div>
+            <div id="adminRecentCount" class="fw-bold display-6">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="btn-group" role="group">
+          <a class="btn btn-primary" href="admin-manage.html">Manage Songs</a>
+          <a class="btn btn-outline-primary" href="admin-upload.html">Uploads</a>
+          <a class="btn btn-outline-primary" href="admin-users.html">Users</a>
+          <a class="btn btn-outline-primary" href="admin-reports.html">Reports</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Home sections: Made for you / New releases / Recently played -->
+  <main class="container py-5">
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4">Made for you</h2>
+        <div class="text-sm text-slate-400">Personalized picks</div>
+      </div>
+      <div id="madeForYouGrid" class="row g-3"></div>
+    </section>
+
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4">New releases</h2>
+        <div class="text-sm text-slate-400">Latest additions</div>
+      </div>
+      <div id="newReleasesGrid" class="row g-3"></div>
+    </section>
+
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4">Recently played</h2>
+        <div class="text-sm text-slate-400">Your recent listens</div>
+      </div>
+      <div id="recentlyPlayedList" class="list-group"></div>
+    </section>
+
+    <!-- Trending -->
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4">🔥 Trending Right Now</h2>
+        <div class="text-sm text-slate-400">Curated picks • local library</div>
+      </div>
+      <div id="trendingGrid" class="row g-3"></div>
+    </section>
+  </main>
+
+  <!-- Player (fixed) -->
+  <div class="player-fixed" id="player">
+    <div class="container d-flex align-items-center gap-3">
+      <img id="playerCover" src="https://via.placeholder.com/64" width="64" height="64" alt="cover">
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div id="playerTitle" class="fw-semibold">Not playing</div>
+            <div id="playerArtist" class="text-sm muted">—</div>
+          </div>
+          <div class="controls">
+            <button class="btn btn-light" id="btnPrev">⏮</button>
+            <button class="big-play" id="btnPlay">▶</button>
+            <button class="btn btn-light" id="btnNext">⏭</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Playlist modal (create/select playlist, add track) -->
+  <div class="modal fade" id="playlistModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="playlistModalTitle">Add to playlist</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Mode 1: Add song to existing playlist -->
+          <div id="playlistAddMode">
+            <div class="mb-2">
+              <label class="form-label small">Choose playlist</label>
+              <select id="playlistSelect" class="form-select form-select-sm"></select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small">Or create new</label>
+              <div class="input-group input-group-sm">
+                <input id="newPlaylistName" type="text" class="form-control form-control-sm" placeholder="Playlist name">
+                <button id="createPlaylistBtn" class="btn btn-outline-light btn-sm">Create</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode 2: Create playlist with song selection -->
+          <div id="playlistCreateMode" style="display:none;">
+            <div class="mb-3">
+              <label class="form-label">Playlist Name</label>
+              <input id="createPlaylistNameInput" type="text" class="form-control" placeholder="Enter playlist name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Select Songs</label>
+              <div id="songChecklistContainer" style="max-height:300px; overflow-y:auto; border:1px solid #444; border-radius:4px; padding:10px;">
+                <!-- Songs will be populated here -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button id="addToPlaylistBtn" class="btn btn-primary btn-sm">Add</button>
+          <button id="createPlaylistWithSongsBtn" class="btn btn-success btn-sm" style="display:none;">Create Playlist</button>
+          <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    </main>
+  </div>
+
+  <!-- Scripts: IndexedDB helper then main + admin -->
+  <script src="js/dbstore.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="admin-inject.js"></script>
+  <script>
+    // Show admin panel on index when adminLoggedIn
+    (function(){
+      const panel = document.getElementById('adminPanel');
+      if (!panel) return;
+      const isAdmin = !!sessionStorage.getItem('adminLoggedIn');
+      if (!isAdmin) return;
+      panel.classList.remove('d-none');
+
+      // Populate stats
+      try { const playlist = JSON.parse(sessionStorage.getItem('playlist')||'[]'); document.getElementById('adminTotalSongs').textContent = playlist.length; document.getElementById('adminRecentCount').textContent = Math.min(10, playlist.length); } catch(e){}
+      try { const pls = JSON.parse(localStorage.getItem('mb_playlists')||'[]'); document.getElementById('adminTotalPlaylists').textContent = pls.length||0; } catch(e){}
+      try { const users = JSON.parse(localStorage.getItem('mb_users')||'[]'); document.getElementById('adminTotalUsers').textContent = users.length||0; } catch(e){}
+
+      // Logout button
+      const logoutBtn = document.getElementById('adminLogoutInline');
+      logoutBtn && logoutBtn.addEventListener('click', function(){ sessionStorage.removeItem('adminLoggedIn'); location.reload(); });
+    })();
+
+    // Admin fills form and clicks Upload
+    document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      // ... get form values (title, artist, language, genre, trending) ...
+      const audioFile = document.getElementById('upAudio')?.files?.[0];
+      const coverFile = document.getElementById('upCoverFile')?.files?.[0];
+      
+      // Create DB entry with audioBlob and coverBlob
+      const entry = { id, title, artist, language, genre, trending, createdAt, audioBlob: audioFile };
+      
+      // Save to IndexedDB
+      await DBSTORE.putSong(entry);
+      
+      // Reload and re-render EVERYWHERE
+      await loadFromDB(); 
+      populateTrending();      // ← Home page trending section
+      populateBrowse();        // ← Browse page
+      populateManage();        // ← Admin manage page
+      populateLibrary();       // ← Library page
+      
+      // Then redirect to manage page
+      window.location.href = 'admin-manage.html';
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

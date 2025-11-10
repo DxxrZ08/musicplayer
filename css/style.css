@@ -1,0 +1,192 @@
+/* Spotify-like dark theme */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Inter:wght@300;400;600&display=swap');
+
+:root{
+  --bg:#0b1220; /* restored previous background color */
+  --surface:#181818;
+  --muted:#e6e6e6;
+  --text:#ffffff;
+  --accent:#1DB954; /* Spotify green */
+  --glass: rgba(255,255,255,0.03);
+  --card-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family: 'Rubik', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-size:17px; /* increased base size for readability */
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  margin:0;
+}
+
+/* Layout pieces */
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--surface);padding:1.4rem;border-right:1px solid rgba(255,255,255,0.04);}
+.sidebar .logo{display:flex;align-items:center;gap:.9rem;margin-bottom:1.25rem}
+.sidebar .nav{display:flex;flex-direction:column;gap:.5rem}
+.sidebar .nav a{color:var(--muted);padding:.7rem .75rem;border-radius:.5rem;text-decoration:none;font-size:1.02rem}
+.sidebar .nav a.active,.sidebar .nav a:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.sidebar .section-title{font-size:.9rem;color:var(--muted);margin-top:1rem;margin-bottom:.5rem}
+
+.main{flex:1;padding:1.5rem;}
+
+/* Cards & tiles */
+.glass{background:var(--surface);box-shadow:var(--card-shadow);border-radius:10px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:10px}
+.song-card{transition:transform .12s ease,box-shadow .12s ease;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:8px}
+.song-card:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(0,0,0,0.6)}
+.song-cover{width:100%;height:180px;object-fit:cover;border-radius:8px;display:block}
+.song-card .fw-semibold{font-size:1.05rem}
+.song-card .text-slate-300{font-size:0.98rem}
+
+/* Play overlay on song cards */
+.song-card{position:relative;overflow:hidden}
+.song-card .play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:background-color .18s ease}
+.song-card .play-overlay .play-btn{pointer-events:auto;opacity:0;transform:translateY(6px) scale(.95);transition:opacity .14s ease,transform .14s ease;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.35));backdrop-filter:blur(2px);width:56px;height:56px;border:none;color:var(--text);font-size:1.1rem}
+.song-card:hover .play-overlay .play-btn{opacity:1;transform:translateY(0) scale(1)}
+
+/* Make the play button always visible on small screens (tap targets) */
+@media (max-width:900px){
+  .song-card .play-overlay .play-btn{opacity:1;transform:translateY(0) scale(1);width:48px;height:48px}
+}
+
+/* Small corner play button alternative for dense grids */
+.song-card .corner-play{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,0.45);width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text);border:none;font-size:0.95rem;opacity:0.95}
+
+/* Add-to-playlist corner button */
+.song-card .corner-add{position:absolute;left:10px;bottom:10px;background:linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.3));width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text);border:none;font-size:1rem;opacity:0.95}
+
+/* per-card progress indicator (thin bar under cover) */
+.song-progress{height:12px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+.song-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #43e27b);transition:width .08s linear;box-shadow:0 4px 12px rgba(0,0,0,0.45) inset}
+.song-progress-text{position:absolute;right:6px;top:-18px;font-size:0.78rem;color:rgba(255,255,255,0.95);text-shadow:0 1px 0 rgba(0,0,0,0.6)}
+
+/* Player */
+.player-fixed{position:fixed;left:240px;right:0;bottom:0;z-index:1050;background:linear-gradient(90deg, rgba(24,24,24,0.9), rgba(18,18,18,0.95));border-top:1px solid rgba(255,255,255,0.04);padding:1rem 1.25rem}
+.player-fixed .controls{display:flex;align-items:center;gap:1rem}
+.player-fixed img{width:72px;height:72px;border-radius:8px}
+.player-fixed .big-play{width:64px;height:64px;border-radius:999px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:var(--text);font-weight:700;border:none;font-size:1.05rem}
+.player-fixed .controls button{font-size:1.05rem;padding:.5rem .75rem}
+
+/* Utilities */
+.muted{color:var(--muted)}
+.text-sm{font-size:1.02rem}
+.display-6{font-size:1.9rem}
+
+/* Improve readability: override some utility color classes used in markup */
+.text-slate-300{color:rgba(255,255,255,0.85) !important}
+.text-slate-400{color:rgba(255,255,255,0.75) !important}
+.small.muted, .small.text-slate-400{color:rgba(255,255,255,0.68) !important}
+.sidebar .nav a{color:rgba(255,255,255,0.78)}
+.sidebar .nav a.active{color:var(--text);background:rgba(255,255,255,0.03)}
+
+/* Button sizing overrides for better tap targets */
+.btn{font-size:1rem;padding:.6rem .9rem;border-radius:10px}
+.btn-sm{font-size:.95rem;padding:.45rem .75rem}
+.btn-primary{font-weight:600}
+
+/* Improve big action controls on smaller screens */
+@media (max-width:900px){
+  .player-fixed{left:0}
+  .sidebar{display:none}
+}
+
+/* Responsive: collapse sidebar on small screens */
+@media (max-width:576px){
+  .song-cover{height:140px}
+  .display-6{font-size:1.25rem}
+  body{font-size:15px}
+  .player-fixed img{width:56px;height:56px}
+  .player-fixed .big-play{width:48px;height:48px}
+}
+
+/* Force light-colored text across the site (ensure readability on dark or light backgrounds) */
+html, body, .app-shell, .main, .sidebar, .card, .glass, .list-group-item, .modal-content, .player-fixed, .hero, header, footer {
+  color: var(--text) !important;
+}
+
+/* Links and buttons should use light text by default */
+a, a:visited, .sidebar .nav a, .btn, .btn * { color: var(--text) !important; }
+
+/* Ensure default bootstrap light buttons don't show dark text */
+.btn.btn-light, .btn.btn-light * { color: var(--bg) !important; }
+
+/* Muted tones slightly dimmer but still light */
+.muted, .small.muted, .small.text-slate-400 { color: var(--muted) !important; }
+
+/* Inputs/selects: keep readable text and subtle backgrounds */
+.form-control, .form-select, input, textarea, select { color: var(--text) !important; background: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.06) !important; }
+::placeholder { color: rgba(255,255,255,0.6) !important; }
+
+/* Override utility classes that may introduce dark colors */
+.text-dark, .text-black { color: var(--text) !important; }
+
+/* Ensure small labels and badges remain readable */
+.form-label, label, .badge { color: var(--text) !important; }
+
+/* Ensure progress percent text remains visible */
+.song-progress-text { color: rgba(255,255,255,0.95) !important; }
+
+/* Modal and Dialog Styling - Dark theme */
+.modal-content {
+  background: var(--surface) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  color: var(--text) !important;
+}
+
+.modal-header {
+  background: rgba(255,255,255,0.02) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  color: var(--text) !important;
+}
+
+.modal-body {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.modal-body input, .modal-body textarea, .modal-body select {
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+.modal-body label, .modal-body .form-label {
+  color: var(--text) !important;
+}
+
+.modal-footer {
+  background: rgba(255,255,255,0.01) !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Modal title and headers - light text */
+.modal-title {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+/* Close buttons in modals */
+.btn-close-white {
+  filter: brightness(1.2) !important;
+}
+
+/* Edit modal specific */
+#editModal .modal-content,
+#playlistModal .modal-content {
+  background: var(--surface) !important;
+}
+
+#editModal input, #editModal textarea, #editModal select,
+#playlistModal input, #playlistModal textarea, #playlistModal select {
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+#editModal label, #playlistModal label {
+  color: var(--text) !important;
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MusicStream — Browse</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="https://via.placeholder.com/40/1DB954/ffffff?text=M" width="40" height="40" style="border-radius:6px;" alt="logo">
+        <div>
+          <div class="fw-bold">MusicStream</div>
+          <div class="small muted">Your music, everywhere</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="browse.html" class="active">Browse</a>
+        <a href="library.html">Library</a>
+        <a href="playlist.html">Playlists</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <div style="flex:1"></div>
+      <div class="small muted">© MusicStream</div>
+    </aside>
+
+    <main class="main">
+      <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h4">Browse Music</h2>
+          <div class="d-flex gap-2">
+            <select id="filterArtist" class="form-select form-select-sm w-auto"></select>
+            <select id="filterLang" class="form-select form-select-sm w-auto"></select>
+            <select id="filterGenre" class="form-select form-select-sm w-auto"></select>
+          </div>
+        </div>
+
+        <div id="browseGrid" class="row g-3"></div>
+      </div>
+    </main>
+
+  <div class="player-fixed glass p-3" id="playerSmall">
+    <div class="container d-flex align-items-center gap-3">
+      <img id="playerCover" src="https://via.placeholder.com/64" width="64" height="64" class="rounded">
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between">
+          <div><div id="playerTitle">Not playing</div><small id="playerArtist" class="text-slate-300">—</small></div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-light" id="btnPrev">⏮</button>
+            <button class="btn btn-sm btn-primary" id="btnPlay">▶</button>
+            <button class="btn btn-sm btn-light" id="btnNext">⏭</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dbstore.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="admin-inject.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

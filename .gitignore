@@ -1,0 +1,24 @@
+# Node modules
+node_modules/
+npm-debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.local
+
+# Build/dist files
+dist/
+build/
+
+# Logs
+logs/
+*.log
+
+# Large files
+*.mp3
