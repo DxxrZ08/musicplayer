@@ -86,7 +86,23 @@ body{
 /* Button sizing overrides for better tap targets */
 .btn{font-size:1rem;padding:.6rem .9rem;border-radius:10px}
 .btn-sm{font-size:.95rem;padding:.45rem .75rem}
-.btn-primary{font-weight:600}
+.btn-primary{font-weight:600;background:#1DB954;border-color:#1DB954}
+.btn-primary:hover{background:#1ed760;border-color:#1ed760}
+.btn-secondary{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:var(--text)}
+.btn-secondary:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3)}
+.btn-danger{background:rgba(255,59,48,0.8);border-color:rgba(255,59,48,0.9);color:var(--text)}
+.btn-danger:hover{background:rgba(255,59,48,1);border-color:rgba(255,59,48,1)}
+.btn-outline-primary{color:#1DB954;border-color:#1DB954}
+.btn-outline-primary:hover{background:#1DB954;border-color:#1DB954;color:var(--text)}
+.btn-outline-light{color:var(--text);border-color:rgba(255,255,255,0.3)}
+.btn-outline-light:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);color:var(--text)}
+.btn-outline-info{color:#17a2b8;border-color:#17a2b8}
+.btn-outline-info:hover{background:#17a2b8;border-color:#17a2b8;color:var(--text)}
+.btn-outline-warning{color:#ffc107;border-color:#ffc107}
+.btn-outline-warning:hover{background:#ffc107;border-color:#ffc107;color:#000}
+.btn-outline-danger{color:#ff3b30;border-color:#ff3b30}
+.btn-outline-danger:hover{background:#ff3b30;border-color:#ff3b30;color:var(--text)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
 
 /* Improve big action controls on smaller screens */
 @media (max-width:900px){
@@ -118,8 +134,19 @@ a, a:visited, .sidebar .nav a, .btn, .btn * { color: var(--text) !important; }
 .muted, .small.muted, .small.text-slate-400 { color: var(--muted) !important; }
 
 /* Inputs/selects: keep readable text and subtle backgrounds */
-.form-control, .form-select, input, textarea, select { color: var(--text) !important; background: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.06) !important; }
-::placeholder { color: rgba(255,255,255,0.6) !important; }
+.form-control, .form-select, input, textarea, select { 
+  color: var(--text) !important; 
+  background: rgba(255,255,255,0.05) !important; 
+  border-color: rgba(255,255,255,0.1) !important; 
+  border-width: 1px !important;
+}
+.form-control:focus, .form-select:focus, input:focus, textarea:focus, select:focus { 
+  background: rgba(255,255,255,0.08) !important; 
+  border-color: #1DB954 !important; 
+  color: var(--text) !important;
+  box-shadow: 0 0 0 0.2rem rgba(29, 185, 84, 0.25) !important;
+}
+::placeholder { color: rgba(255,255,255,0.5) !important; }
 
 /* Override utility classes that may introduce dark colors */
 .text-dark, .text-black { color: var(--text) !important; }
@@ -189,4 +216,156 @@ a, a:visited, .sidebar .nav a, .btn, .btn * { color: var(--text) !important; }
 
 #editModal label, #playlistModal label {
   color: var(--text) !important;
+}
+
+/* Alerts - Dark theme */
+.alert {
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.alert-info {
+  background: rgba(29, 185, 84, 0.1) !important;
+  border-color: rgba(29, 185, 84, 0.3) !important;
+  color: rgba(255,255,255,0.95) !important;
+}
+
+.alert-warning {
+  background: rgba(255, 193, 7, 0.1) !important;
+  border-color: rgba(255, 193, 7, 0.3) !important;
+  color: rgba(255,255,255,0.95) !important;
+}
+
+.alert-danger {
+  background: rgba(255, 59, 48, 0.1) !important;
+  border-color: rgba(255, 59, 48, 0.3) !important;
+  color: rgba(255,255,255,0.95) !important;
+}
+
+.alert strong {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+/* List group items - Dark theme */
+.list-group-item {
+  background: rgba(255,255,255,0.01) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  color: var(--text) !important;
+}
+
+.list-group-item:hover {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+.list-group-item-action {
+  color: var(--text) !important;
+}
+
+.list-group-item-action:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* Container background */
+.container {
+  background: transparent !important;
+}
+
+/* Badge styling - Dark theme */
+.badge {
+  background: rgba(29, 185, 84, 0.8) !important;
+  color: var(--text) !important;
+}
+
+/* Table styling - Dark theme */
+.table {
+  background: transparent !important;
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.table thead {
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.table thead th {
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.table tbody tr {
+  background: rgba(255,255,255,0.01) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.table tbody tr:hover {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+.table tbody td {
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+  background: var(--surface) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.dropdown-item {
+  color: var(--text) !important;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: var(--text) !important;
+}
+
+.dropdown-divider {
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Navbar styling */
+.navbar {
+  background: var(--surface) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.navbar-light .navbar-text {
+  color: var(--text) !important;
+}
+
+/* Pagination styling */
+.pagination {
+  background: transparent;
+}
+
+.page-link {
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+.page-link:hover {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: var(--text) !important;
+}
+
+.page-link.active {
+  background: #1DB954 !important;
+  border-color: #1DB954 !important;
+  color: var(--text) !important;
+}
+
+/* Spinner/loader styling */
+.spinner-border {
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+.spinner-border-sm {
+  border-color: rgba(255,255,255,0.2) !important;
 }

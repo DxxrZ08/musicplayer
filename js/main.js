@@ -116,6 +116,17 @@ const LOCAL_MP3_SONGS = [
     audioUrl: 'mp3/At Peace.mp3',
     coverUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString()
+  },
+  {
+    id: 'local-11',
+    title: 'Your Song Title',
+    artist: 'Artist Name',
+    language: 'Language',
+    genre: 'Genre',
+    trending: true,
+    audioUrl: 'mp3/YourSongFile.mp3',
+    coverUrl: 'https://image-url.com/cover.jpg',
+    createdAt: new Date().toISOString()
   }
 ];
 
@@ -162,88 +173,48 @@ function createSongCard(song, idx){
 
 async function loadFromDB(){
   try {
-    let items = await DBSTORE.listSongs(500);
-    
-    // Remove demo songs that start with 'sample-' (old demo data)
-    const demoSongIds = ['sample-1', 'sample-2', 'sample-3', 'sample-4', 'sample-5', 'sample-6'];
-    for(const demoId of demoSongIds){
-      try { await DBSTORE.deleteSong(demoId); } catch(e){}
-    }
-    
-    // Re-fetch after cleaning up old demo songs
-    items = await DBSTORE.listSongs(500);
-    
-    // If DB is empty, seed default preview samples so they persist and appear in admin/manage
-    if ((!items || items.length === 0) && Array.isArray(DEFAULT_SAMPLES) && DEFAULT_SAMPLES.length>0) {
-      try{
-        await Promise.all(DEFAULT_SAMPLES.map(s => {
-          const entry = { id: s.id, title: s.title, artist: s.artist, language: s.language, genre: s.genre, trending: s.trending, coverUrl: s.coverUrl, audioUrl: s.audioUrl, createdAt: s.createdAt };
-          return DBSTORE.putSong(entry);
-        }));
-        // re-list after seeding
-        items = await DBSTORE.listSongs(500);
-      }catch(seedErr){ console.warn('Seeding default samples failed', seedErr); }
-    }
-    
-    // Add local MP3 songs from mp3/ folder to the database if not already there
+    // Load LOCAL_MP3_SONGS from mp3/ folder
+    let allSongs = [];
     if(Array.isArray(LOCAL_MP3_SONGS) && LOCAL_MP3_SONGS.length > 0){
-      try{
-        for(const localSong of LOCAL_MP3_SONGS){
-          const exists = items.find(s => s.id === localSong.id);
-          if(!exists){
-            const entry = { id: localSong.id, title: localSong.title, artist: localSong.artist, language: localSong.language, genre: localSong.genre, trending: localSong.trending, coverUrl: localSong.coverUrl, audioUrl: localSong.audioUrl, createdAt: localSong.createdAt };
-            await DBSTORE.putSong(entry);
-          }
-        }
-        // re-list after adding local songs
-        items = await DBSTORE.listSongs(500);
-      }catch(err){ console.warn('Loading local MP3 songs failed', err); }
+      allSongs = LOCAL_MP3_SONGS.map(s => ({
+        id: s.id,
+        title: s.title,
+        artist: s.artist,
+        language: s.language,
+        genre: s.genre,
+        trending: !!s.trending,
+        cover: s.coverUrl || `https://picsum.photos/seed/${encodeURIComponent(s.title)}/600/600`,
+        audio: s.audioUrl,
+        createdAt: s.createdAt,
+        source: 'local'
+      }));
     }
     
-    // Remove songs with missing MP3 files (check if audio URLs are valid/accessible)
-    // Songs from mp3/ folder that no longer have files will be deleted
-    const localSongIds = LOCAL_MP3_SONGS.map(s => s.id);
-    for(const song of items){
-      if(localSongIds.includes(song.id) && song.audioUrl && song.audioUrl.includes('mp3/')){
-        // Check if the file exists by trying to fetch it
-        try {
-          const response = await fetch(song.audioUrl, { method: 'HEAD' });
-          if(!response.ok){
-            // File doesn't exist, delete from DB
-            await DBSTORE.deleteSong(song.id);
-            console.warn(`Deleted song ${song.id} - audio file not found`);
-          }
-        }catch(err){
-          // Network error or file not found, delete from DB
-          await DBSTORE.deleteSong(song.id);
-          console.warn(`Deleted song ${song.id} - audio file not accessible`);
-        }
+    // Load uploaded songs from localStorage (shared across all users)
+    try {
+      const uploadedStr = localStorage.getItem('musicstream_uploads') || '[]';
+      const uploadedSongs = JSON.parse(uploadedStr);
+      if(Array.isArray(uploadedSongs) && uploadedSongs.length > 0){
+        const uploadedMapped = uploadedSongs.map(s => ({
+          id: s.id,
+          title: s.title,
+          artist: s.artist,
+          language: s.language,
+          genre: s.genre,
+          trending: !!s.trending,
+          cover: s.cover || `https://picsum.photos/seed/${encodeURIComponent(s.title)}/600/600`,
+          audio: s.audio,
+          createdAt: s.createdAt,
+          source: 'uploaded'
+        }));
+        allSongs = [...uploadedMapped, ...allSongs];
       }
-    }
+    } catch(e) { console.warn('Failed to load uploaded songs', e); }
     
-    // Re-fetch after removing songs with missing files
-    items = await DBSTORE.listSongs(500);
-    
-    // map to runtime songs with object URLs for blobs
-    window.songsDB = items.map(s => ({
-      id: s.id,
-      title: s.title,
-      artist: s.artist,
-      language: s.language,
-      genre: s.genre,
-      trending: !!s.trending,
-      cover: s.coverBlob ? DBSTORE.blobToURL(s.coverBlob) : (s.coverUrl || `https://picsum.photos/seed/${encodeURIComponent(s.title)}/600/600`),
-      audio: s.audioBlob ? DBSTORE.blobToURL(s.audioBlob) : (s.audioUrl || '#'),
-      createdAt: s.createdAt
-    }));
-    // fallback: if mapping produced no songs (DB/list failed), fall back to in-memory samples (LOCAL_MP3_SONGS or DEFAULT_SAMPLES)
-    if (!window.songsDB || window.songsDB.length === 0) {
-      const fallback = LOCAL_MP3_SONGS.length > 0 ? LOCAL_MP3_SONGS : DEFAULT_SAMPLES;
-      window.songsDB = fallback.map(s => ({ id: s.id, title: s.title, artist: s.artist, language: s.language, genre: s.genre, trending: s.trending, cover: s.coverUrl, audio: s.audioUrl, createdAt: s.createdAt }));
-    }
+    window.songsDB = allSongs;
   } catch (err) {
-    console.error('DB load error', err);
-    window.songsDB = window.songsDB || [];
+    console.error('Load error', err);
+    window.songsDB = LOCAL_MP3_SONGS.map(s => ({ id: s.id, title: s.title, artist: s.artist, language: s.language, genre: s.genre, trending: s.trending, cover: s.coverUrl, audio: s.audioUrl, createdAt: s.createdAt, source: 'local' }));
   }
 }
 
@@ -687,26 +658,69 @@ document.getElementById('editForm')?.addEventListener('submit', async (e)=>{
   const language = document.getElementById('editLang').value.trim();
   const genre = document.getElementById('editGenre').value.trim();
   const trending = document.getElementById('editTrending').value === 'true';
-  // get DB entry, update metadata, putSong
+  
   try{
-    const entry = await DBSTORE.getSong(id);
-    if(!entry) return uiToast('Not found in DB', {type:'danger'});
-    entry.title = title; entry.artist = artist; entry.language = language; entry.genre = genre; entry.trending = trending;
-    await DBSTORE.putSong(entry);
-    await loadFromDB(); populateTrending(); populateBrowse(); populateManage(); populateLibrary();
+    // If it's an uploaded song, update in localStorage
+    if(id.startsWith('upload-')) {
+      let uploadedSongs = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+      const idx = uploadedSongs.findIndex(s => s.id === id);
+      if(idx === -1) return uiToast('Song not found', {type:'danger'});
+      
+      uploadedSongs[idx].title = title;
+      uploadedSongs[idx].artist = artist;
+      uploadedSongs[idx].language = language;
+      uploadedSongs[idx].genre = genre;
+      uploadedSongs[idx].trending = trending;
+      
+      localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedSongs));
+    } else {
+      // Local mp3 songs can't be edited
+      uiToast('Cannot edit songs from mp3 folder', {type:'warning'});
+      return;
+    }
+    
+    await loadFromDB(); 
+    populateTrending(); 
+    populateBrowse(); 
+    populateManage(); 
+    populateLibrary();
+    populateFilters();
     bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-    uiToast('Updated (local DB)', {type:'success'});
+    uiToast('Song updated! All users will see the changes.', {type:'success'});
   }catch(err){ console.error(err); uiToast('Update failed', {type:'danger'}); }
 });
 
 // delete
 async function handleDelete(id){
-  const ok = await uiConfirm('Delete this song locally?');
+  const ok = await uiConfirm('Delete this song?');
   if(!ok) return;
-  try{ await DBSTORE.deleteSong(id); await loadFromDB(); populateTrending(); populateBrowse(); populateManage(); populateLibrary(); uiToast('Deleted', {type:'success'}); }catch(e){ console.error(e); uiToast('Delete failed', {type:'danger'}); }
+  try{ 
+    // If it's an uploaded song (starts with 'upload-'), delete from localStorage
+    if(id.startsWith('upload-')) {
+      let uploadedSongs = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+      uploadedSongs = uploadedSongs.filter(s => s.id !== id);
+      localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedSongs));
+    } else {
+      // Local mp3 songs can't be deleted (they're from mp3 folder)
+      uiToast('Cannot delete songs from mp3 folder', {type:'warning'});
+      return;
+    }
+    
+    await loadFromDB(); 
+    populateTrending(); 
+    populateBrowse(); 
+    populateManage(); 
+    populateLibrary(); 
+    populateFilters();
+    uiToast('Song deleted', {type:'success'}); 
+  }catch(e){ 
+    console.error(e); 
+    uiToast('Delete failed', {type:'danger'}); 
+  }
 }
 
 // upload (admin/upload.html)
+// Upload handler - saves to localStorage so all users see it
 document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const title = document.getElementById('upTitle').value.trim();
@@ -714,129 +728,92 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
   const language = document.getElementById('upLang').value;
   const genre = document.getElementById('upGenre').value || 'Unknown';
   const trending = document.getElementById('upTrending').value === 'true';
-  if(!title || !artist || !language) return uiToast('Title, artist, language are required', {type:'warning'});
+  
+  if(!title || !artist || !language) {
+    uiToast('Title, artist, language are required', {type:'warning'});
+    return;
+  }
+  
   const audioFile = document.getElementById('upAudio')?.files?.[0];
   const coverFile = document.getElementById('upCoverFile')?.files?.[0];
-  if(!audioFile) return uiToast('Select an audio file', {type:'warning'});
   
-  // Create DB entry with audioBlob and coverBlob
-  const id = DBSTORE.uid();
-  const createdAt = new Date().toISOString();
-  const entry = { id, title, artist, language, genre, trending, createdAt, audioBlob: audioFile };
-  
-  // Add cover image if provided
-  if(coverFile) entry.coverBlob = coverFile;
-  else {
-    const coverUrl = document.getElementById('upCover')?.value?.trim();
-    if(coverUrl) entry.coverUrl = coverUrl;
+  if(!audioFile) {
+    uiToast('Select an audio file', {type:'warning'});
+    return;
   }
   
-  try{
-    // Save to IndexedDB
-    await DBSTORE.putSong(entry);
+  try {
+    // Convert audio file to base64 for localStorage
+    const audioBase64 = await fileToBase64(audioFile);
+    let coverBase64 = null;
     
-    // Reload and re-render EVERYWHERE
+    if(coverFile) {
+      coverBase64 = await fileToBase64(coverFile);
+    } else {
+      const coverUrl = document.getElementById('upCover')?.value?.trim();
+      if(coverUrl) {
+        // If URL provided, use it directly (no base64 needed)
+        coverBase64 = coverUrl;
+      }
+    }
+    
+    // Create song entry
+    const id = 'upload-' + Date.now();
+    const createdAt = new Date().toISOString();
+    const newSong = { 
+      id, 
+      title, 
+      artist, 
+      language, 
+      genre, 
+      trending, 
+      cover: coverBase64 || `https://picsum.photos/seed/${encodeURIComponent(title)}/600/600`,
+      audio: audioBase64,
+      createdAt 
+    };
+    
+    // Load existing uploads from localStorage
+    let uploadedSongs = [];
+    try {
+      uploadedSongs = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+    } catch(e) { uploadedSongs = []; }
+    
+    // Add new song
+    uploadedSongs.push(newSong);
+    
+    // Save back to localStorage
+    localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedSongs));
+    
+    // Reload UI
     await loadFromDB(); 
-    populateTrending();      // ← Home page trending section
-    populateBrowse();        // ← Browse page
-    populateManage();        // ← Admin manage page
-    populateLibrary();       // ← Library page
+    populateTrending();
+    populateBrowse();
+    populateLibrary();
+    populateManage();
+    populateFilters();
     
-    uiToast('Uploaded and stored locally', {type:'success'});
+    uiToast('Song uploaded successfully! All users will see it.', {type:'success'});
     e.target.reset();
     
-    // Then redirect to manage page
-    window.location.href = 'admin-manage.html';
-  }catch(err){ 
+    // Redirect to manage page
+    setTimeout(()=>{ window.location.href = 'admin-manage.html'; }, 1000);
+  } catch(err) { 
     console.error(err); 
-    uiToast('Upload failed', {type:'danger'}); 
+    uiToast('Upload failed: ' + err.message, {type:'danger'}); 
   }
 });
 
-// export library: download JSON with metadata (can be imported on another device)
-document.getElementById('exportBtn')?.addEventListener('click', async ()=>{
-  try{
-    const items = await DBSTORE.listSongs(1000);
-    // Export metadata only (audio blobs are too large)
-    const exportData = {
-      version: '1.0',
-      exportDate: new Date().toISOString(),
-      songs: items.map(i => ({ 
-        id:i.id, 
-        title:i.title, 
-        artist:i.artist, 
-        language:i.language, 
-        genre:i.genre, 
-        trending:i.trending, 
-        coverUrl:i.coverUrl,
-        createdAt:i.createdAt 
-      }))
-    };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'musicstream_backup_' + new Date().getTime() + '.json'; document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-    uiToast('Library exported successfully', {type:'success'});
-  }catch(e){ console.error(e); uiToast('Export failed', {type:'danger'}); }
-});
+// Helper: Convert file to base64 string
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
-// import library: restore from JSON backup
-document.getElementById('importBtn')?.addEventListener('click', ()=>{
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.onchange = async (e)=>{
-    const file = e.target.files[0];
-    if(!file) return;
-    try{
-      const text = await file.text();
-      const importData = JSON.parse(text);
-      const songs = importData.songs || [];
-      
-      if(songs.length === 0){
-        uiToast('No songs found in backup file', {type:'warning'});
-        return;
-      }
-      
-      // Ask for confirmation
-      if(!confirm(`Import ${songs.length} songs from backup?\nNote: Songs without audio files need to be re-uploaded.`)) return;
-      
-      // Import each song
-      let imported = 0;
-      for(const song of songs){
-        try{
-          const entry = { 
-            id: song.id || DBSTORE.uid(),
-            title: song.title, 
-            artist: song.artist, 
-            language: song.language, 
-            genre: song.genre, 
-            trending: song.trending,
-            coverUrl: song.coverUrl,
-            createdAt: song.createdAt || new Date().toISOString()
-          };
-          await DBSTORE.putSong(entry);
-          imported++;
-        }catch(err){
-          console.warn('Failed to import song', song, err);
-        }
-      }
-      
-      // Reload UI
-      await loadFromDB();
-      populateBrowse();
-      populateTrending();
-      populateManage();
-      populateLibrary();
-      
-      uiToast(`Imported ${imported} songs successfully!`, {type:'success'});
-    }catch(err){
-      console.error(err);
-      uiToast('Import failed - invalid file format', {type:'danger'});
-    }
-  };
-  input.click();
-});
+// No uploads - only mp3 folder songs are available
 
 // init
 document.addEventListener('DOMContentLoaded', async ()=>{
