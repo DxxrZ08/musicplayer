@@ -190,26 +190,41 @@ async function loadFromDB(){
       }));
     }
     
-    // Load uploaded songs from localStorage (shared across all users)
+    // Load uploaded songs from IndexedDB (persisted across refreshes)
     try {
-      const uploadedStr = localStorage.getItem('musicstream_uploads') || '[]';
-      const uploadedSongs = JSON.parse(uploadedStr);
-      if(Array.isArray(uploadedSongs) && uploadedSongs.length > 0){
-        const uploadedMapped = uploadedSongs.map(s => ({
-          id: s.id,
-          title: s.title,
-          artist: s.artist,
-          language: s.language,
-          genre: s.genre,
-          trending: !!s.trending,
-          cover: s.cover || `https://picsum.photos/seed/${encodeURIComponent(s.title)}/600/600`,
-          audio: s.audio,
-          createdAt: s.createdAt,
-          source: 'uploaded'
-        }));
+      const uploadedFromDB = await DBSTORE.listSongs(500);
+      if(Array.isArray(uploadedFromDB) && uploadedFromDB.length > 0){
+        const uploadedMapped = uploadedFromDB.map(s => {
+          let audioUrl = '#';
+          
+          // Create blob URL if audioBlob exists
+          if(s.audioBlob) {
+            try {
+              audioUrl = DBSTORE.blobToURL(s.audioBlob);
+            } catch(e) {
+              console.error('Failed to create blob URL for song', s.id, e);
+              audioUrl = '#';
+            }
+          } else if(s.audioUrl) {
+            audioUrl = s.audioUrl;
+          }
+          
+          return {
+            id: s.id,
+            title: s.title,
+            artist: s.artist,
+            language: s.language,
+            genre: s.genre,
+            trending: !!s.trending,
+            cover: s.coverUrl || `https://picsum.photos/seed/${encodeURIComponent(s.title)}/600/600`,
+            audio: audioUrl,
+            createdAt: s.createdAt,
+            source: 'uploaded'
+          };
+        });
         allSongs = [...uploadedMapped, ...allSongs];
       }
-    } catch(e) { console.warn('Failed to load uploaded songs', e); }
+    } catch(e) { console.warn('Failed to load uploaded songs from DB', e); }
     
     window.songsDB = allSongs;
   } catch (err) {
@@ -357,8 +372,11 @@ function playIndex(i){
   if(s.audio && s.audio !== '#'){ 
     window.globalAudio.src = s.audio; 
     window.globalAudio.play().catch(()=>{});
-    // Save current playing state to sessionStorage
-    try { sessionStorage.setItem('__playerState', JSON.stringify({ songId: s.id, currentTime: 0 })); } catch(e){}
+    // Save current playing state to localStorage (persists across page refreshes)
+    try { 
+      localStorage.setItem('__playerState', JSON.stringify({ songId: s.id, currentTime: 0 }));
+      localStorage.setItem('__playerWasPlaying', 'true');
+    } catch(e){}
   } else { 
     window.globalAudio.src = ''; 
   }
@@ -370,19 +388,19 @@ function playIndex(i){
 // Restore player state on page load
 function restorePlayerState(){
   try {
-    const state = JSON.parse(sessionStorage.getItem('__playerState') || '{}');
+    const state = JSON.parse(localStorage.getItem('__playerState') || '{}');
     if(state.songId && window.songsDB && window.songsDB.length > 0){
       const idx = window.songsDB.findIndex(s => s.id === state.songId);
       if(idx >= 0){
-        // Don't auto-play, just restore UI and current time
+        // Restore UI and current time
         const s = window.songsDB[idx];
         currentIndex = idx;
         setPlayerUI(s);
         if(s.audio && s.audio !== '#'){
           window.globalAudio.src = s.audio;
           window.globalAudio.currentTime = state.currentTime || 0;
-          // Auto-resume if was playing
-          const wasPlaying = sessionStorage.getItem('__playerWasPlaying') === 'true';
+          // Auto-resume if was playing before refresh
+          const wasPlaying = localStorage.getItem('__playerWasPlaying') === 'true';
           if(wasPlaying){
             window.globalAudio.play().catch(()=>{});
             document.getElementById('btnPlay') && (document.getElementById('btnPlay').innerText = '⏸');
@@ -393,17 +411,17 @@ function restorePlayerState(){
   } catch(e){ console.warn('Failed to restore player state', e); }
 }
 
-// Save player state every 500ms
+// Save player state every 500ms to localStorage (persists across refresh)
 setInterval(()=>{
   try {
     if(currentIndex >= 0 && window.songsDB[currentIndex]){
       const s = window.songsDB[currentIndex];
       const isPlaying = !window.globalAudio.paused;
-      sessionStorage.setItem('__playerState', JSON.stringify({ 
+      localStorage.setItem('__playerState', JSON.stringify({ 
         songId: s.id, 
         currentTime: window.globalAudio.currentTime 
       }));
-      sessionStorage.setItem('__playerWasPlaying', isPlaying ? 'true' : 'false');
+      localStorage.setItem('__playerWasPlaying', isPlaying ? 'true' : 'false');
     }
   } catch(e){}
 }, 500);
@@ -660,19 +678,30 @@ document.getElementById('editForm')?.addEventListener('submit', async (e)=>{
   const trending = document.getElementById('editTrending').value === 'true';
   
   try{
-    // If it's an uploaded song, update in localStorage
+    // If it's an uploaded song, update in IndexedDB
     if(id.startsWith('upload-')) {
-      let uploadedSongs = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
-      const idx = uploadedSongs.findIndex(s => s.id === id);
-      if(idx === -1) return uiToast('Song not found', {type:'danger'});
+      const entry = await DBSTORE.getSong(id);
+      if(!entry) return uiToast('Song not found', {type:'danger'});
       
-      uploadedSongs[idx].title = title;
-      uploadedSongs[idx].artist = artist;
-      uploadedSongs[idx].language = language;
-      uploadedSongs[idx].genre = genre;
-      uploadedSongs[idx].trending = trending;
+      entry.title = title;
+      entry.artist = artist;
+      entry.language = language;
+      entry.genre = genre;
+      entry.trending = trending;
       
-      localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedSongs));
+      await DBSTORE.putSong(entry);
+      
+      // Also update localStorage metadata
+      let uploadedMetadata = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+      const idx = uploadedMetadata.findIndex(s => s.id === id);
+      if(idx !== -1) {
+        uploadedMetadata[idx].title = title;
+        uploadedMetadata[idx].artist = artist;
+        uploadedMetadata[idx].language = language;
+        uploadedMetadata[idx].genre = genre;
+        uploadedMetadata[idx].trending = trending;
+        localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedMetadata));
+      }
     } else {
       // Local mp3 songs can't be edited
       uiToast('Cannot edit songs from mp3 folder', {type:'warning'});
@@ -695,11 +724,13 @@ async function handleDelete(id){
   const ok = await uiConfirm('Delete this song?');
   if(!ok) return;
   try{ 
-    // If it's an uploaded song (starts with 'upload-'), delete from localStorage
+    // If it's an uploaded song (starts with 'upload-'), delete from IndexedDB
     if(id.startsWith('upload-')) {
-      let uploadedSongs = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
-      uploadedSongs = uploadedSongs.filter(s => s.id !== id);
-      localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedSongs));
+      await DBSTORE.deleteSong(id);
+      // Also remove from localStorage metadata
+      let uploadedMetadata = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+      uploadedMetadata = uploadedMetadata.filter(s => s.id !== id);
+      localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedMetadata));
     } else {
       // Local mp3 songs can't be deleted (they're from mp3 folder)
       uiToast('Cannot delete songs from mp3 folder', {type:'warning'});
@@ -718,9 +749,8 @@ async function handleDelete(id){
     uiToast('Delete failed', {type:'danger'}); 
   }
 }
-
 // upload (admin/upload.html)
-// Upload handler - saves to localStorage so all users see it
+// Upload handler - saves to IndexedDB + localStorage metadata so all users see it
 document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const title = document.getElementById('upTitle').value.trim();
@@ -743,46 +773,53 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
   }
   
   try {
-    // Convert audio file to base64 for localStorage
-    const audioBase64 = await fileToBase64(audioFile);
-    let coverBase64 = null;
-    
-    if(coverFile) {
-      coverBase64 = await fileToBase64(coverFile);
-    } else {
-      const coverUrl = document.getElementById('upCover')?.value?.trim();
-      if(coverUrl) {
-        // If URL provided, use it directly (no base64 needed)
-        coverBase64 = coverUrl;
-      }
-    }
-    
-    // Create song entry
+    // Create song entry with metadata
     const id = 'upload-' + Date.now();
     const createdAt = new Date().toISOString();
-    const newSong = { 
+    
+    // Get cover URL or file
+    let coverUrl = document.getElementById('upCover')?.value?.trim();
+    if(!coverUrl) {
+      coverUrl = `https://picsum.photos/seed/${encodeURIComponent(title)}/600/600`;
+    }
+    
+    // Create metadata object to save in localStorage
+    const metadata = { 
       id, 
       title, 
       artist, 
       language, 
       genre, 
-      trending, 
-      cover: coverBase64 || `https://picsum.photos/seed/${encodeURIComponent(title)}/600/600`,
-      audio: audioBase64,
-      createdAt 
+      trending,
+      coverUrl,
+      createdAt,
+      hasAudio: true
     };
     
-    // Load existing uploads from localStorage
-    let uploadedSongs = [];
+    // Save audio file to IndexedDB with the blob
+    const dbEntry = {
+      id,
+      title,
+      artist,
+      language,
+      genre,
+      trending,
+      coverUrl,
+      audioBlob: audioFile,
+      createdAt
+    };
+    
+    // Save to IndexedDB
+    await DBSTORE.putSong(dbEntry);
+    
+    // Save metadata to localStorage for quick lookup
+    let uploadedMetadata = [];
     try {
-      uploadedSongs = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
-    } catch(e) { uploadedSongs = []; }
+      uploadedMetadata = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+    } catch(e) { uploadedMetadata = []; }
     
-    // Add new song
-    uploadedSongs.push(newSong);
-    
-    // Save back to localStorage
-    localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedSongs));
+    uploadedMetadata.push(metadata);
+    localStorage.setItem('musicstream_uploads', JSON.stringify(uploadedMetadata));
     
     // Reload UI
     await loadFromDB(); 
@@ -803,17 +840,6 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
   }
 });
 
-// Helper: Convert file to base64 string
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-// No uploads - only mp3 folder songs are available
 
 // init
 document.addEventListener('DOMContentLoaded', async ()=>{
@@ -828,7 +854,95 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   
   // Restore player state (song, position, play/pause)
   restorePlayerState();
+  
+  // Setup export/import handlers
+  setupExportImport();
 });
+
+// Export/Import functionality
+function setupExportImport(){
+  // Export button
+  document.getElementById('exportBtn')?.addEventListener('click', async ()=>{
+    try {
+      const uploadedMetadata = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+      const exportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        songs: uploadedMetadata
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'musicstream_backup_' + new Date().getTime() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      
+      uiToast('Library exported successfully!', {type:'success'});
+    } catch(e) {
+      console.error(e);
+      uiToast('Export failed', {type:'danger'});
+    }
+  });
+  
+  // Import button
+  document.getElementById('importBtn')?.addEventListener('click', ()=>{
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      
+      try {
+        const text = await file.text();
+        const importData = JSON.parse(text);
+        const importedSongs = importData.songs || [];
+        
+        if(importedSongs.length === 0) {
+          uiToast('No songs found in backup file', {type:'warning'});
+          return;
+        }
+        
+        const ok = await uiConfirm(`Import ${importedSongs.length} songs from backup?\nThey will be added to your library.`);
+        if(!ok) return;
+        
+        // Load existing uploads
+        let currentUploads = JSON.parse(localStorage.getItem('musicstream_uploads') || '[]');
+        
+        // Add imported songs (avoid duplicates by ID)
+        let addedCount = 0;
+        for(const song of importedSongs) {
+          const exists = currentUploads.find(s => s.id === song.id);
+          if(!exists) {
+            currentUploads.push(song);
+            addedCount++;
+          }
+        }
+        
+        // Save back to localStorage
+        localStorage.setItem('musicstream_uploads', JSON.stringify(currentUploads));
+        
+        // Reload UI
+        await loadFromDB();
+        populateBrowse();
+        populateTrending();
+        populateManage();
+        populateLibrary();
+        populateFilters();
+        
+        uiToast(`Imported ${addedCount} new songs!`, {type:'success'});
+      } catch(err) {
+        console.error(err);
+        uiToast('Import failed - invalid file format', {type:'danger'});
+      }
+    };
+    input.click();
+  });
+}
 
 // Handle "Create with Songs" button on playlist page
 document.getElementById('createPlaylistWithSongsModalBtn')?.addEventListener('click', ()=>{
