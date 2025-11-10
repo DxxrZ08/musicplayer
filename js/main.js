@@ -772,6 +772,14 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
     return;
   }
   
+  // Check file size - max 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  if(audioFile.size > MAX_FILE_SIZE) {
+    const fileSizeMB = (audioFile.size / (1024 * 1024)).toFixed(2);
+    uiToast(`File is too large (${fileSizeMB}MB). Max 10MB allowed.`, {type:'danger'});
+    return;
+  }
+  
   try {
     // Create song entry with metadata
     const id = 'upload-' + Date.now();
