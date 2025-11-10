@@ -19,6 +19,3 @@ build/
 # Logs
 logs/
 *.log
-
-# Large files
-*.mp3
