@@ -753,16 +753,89 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
   }
 });
 
-// export library: download JSON + blobs as zip (basic)
+// export library: download JSON with metadata (can be imported on another device)
 document.getElementById('exportBtn')?.addEventListener('click', async ()=>{
   try{
     const items = await DBSTORE.listSongs(1000);
-    const exportData = items.map(i => ({ id:i.id, title:i.title, artist:i.artist, language:i.language, genre:i.genre, trending:i.trending, createdAt:i.createdAt }));
+    // Export metadata only (audio blobs are too large)
+    const exportData = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      songs: items.map(i => ({ 
+        id:i.id, 
+        title:i.title, 
+        artist:i.artist, 
+        language:i.language, 
+        genre:i.genre, 
+        trending:i.trending, 
+        coverUrl:i.coverUrl,
+        createdAt:i.createdAt 
+      }))
+    };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'musicstream_library.json'; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a'); a.href = url; a.download = 'musicstream_backup_' + new Date().getTime() + '.json'; document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
+    uiToast('Library exported successfully', {type:'success'});
   }catch(e){ console.error(e); uiToast('Export failed', {type:'danger'}); }
+});
+
+// import library: restore from JSON backup
+document.getElementById('importBtn')?.addEventListener('click', ()=>{
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const importData = JSON.parse(text);
+      const songs = importData.songs || [];
+      
+      if(songs.length === 0){
+        uiToast('No songs found in backup file', {type:'warning'});
+        return;
+      }
+      
+      // Ask for confirmation
+      if(!confirm(`Import ${songs.length} songs from backup?\nNote: Songs without audio files need to be re-uploaded.`)) return;
+      
+      // Import each song
+      let imported = 0;
+      for(const song of songs){
+        try{
+          const entry = { 
+            id: song.id || DBSTORE.uid(),
+            title: song.title, 
+            artist: song.artist, 
+            language: song.language, 
+            genre: song.genre, 
+            trending: song.trending,
+            coverUrl: song.coverUrl,
+            createdAt: song.createdAt || new Date().toISOString()
+          };
+          await DBSTORE.putSong(entry);
+          imported++;
+        }catch(err){
+          console.warn('Failed to import song', song, err);
+        }
+      }
+      
+      // Reload UI
+      await loadFromDB();
+      populateBrowse();
+      populateTrending();
+      populateManage();
+      populateLibrary();
+      
+      uiToast(`Imported ${imported} songs successfully!`, {type:'success'});
+    }catch(err){
+      console.error(err);
+      uiToast('Import failed - invalid file format', {type:'danger'});
+    }
+  };
+  input.click();
 });
 
 // init
