@@ -1035,3 +1035,134 @@ function openPlaylistView(id){
   const modal = new bootstrap.Modal(document.getElementById('playlistViewModal'));
   modal.show();
 }
+
+/* ====== REAL-TIME USER TRACKING ====== */
+// Track active users for admin dashboard
+function setupUserTracking(){
+  try {
+    // Get or create a unique session ID for this user
+    let sessionId = sessionStorage.getItem('sessionId');
+    if(!sessionId){
+      sessionId = 'user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+      sessionStorage.setItem('sessionId', sessionId);
+    }
+
+    // Get current user info
+    let currentUser = null;
+    try {
+      const userStr = sessionStorage.getItem('userLoggedIn');
+      if(userStr) currentUser = JSON.parse(userStr);
+    } catch(e) {}
+
+    // Update active users list in localStorage
+    const updateActiveUsers = ()=>{
+      try {
+        const key = 'activeUsers';
+        let users = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        // Remove this session if it exists
+        users = users.filter(u => u.sessionId !== sessionId);
+        
+        // Add current user with timestamp
+        users.push({
+          sessionId: sessionId,
+          email: currentUser?.email || 'Anonymous',
+          name: currentUser?.name || 'Guest',
+          lastSeen: new Date().toISOString(),
+          page: window.location.pathname.split('/').pop() || 'index.html'
+        });
+        
+        // Keep only last 100 sessions (clean up old ones)
+        users = users.slice(-100);
+        
+        // Remove entries older than 5 minutes (session timeout)
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        users = users.filter(u => u.lastSeen > fiveMinutesAgo);
+        
+        localStorage.setItem(key, JSON.stringify(users));
+      } catch(e) {
+        console.warn('Failed to update active users', e);
+      }
+    };
+
+    // Update on page load
+    updateActiveUsers();
+
+    // Update every 30 seconds
+    setInterval(updateActiveUsers, 30000);
+
+    // Update on visibility change (when user comes back to tab)
+    document.addEventListener('visibilitychange', ()=>{
+      if(!document.hidden) updateActiveUsers();
+    });
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', ()=>{
+      try {
+        const key = 'activeUsers';
+        let users = JSON.parse(localStorage.getItem(key) || '[]');
+        users = users.filter(u => u.sessionId !== sessionId);
+        localStorage.setItem(key, JSON.stringify(users));
+      } catch(e) {}
+    });
+  } catch(e) {
+    console.warn('Failed to setup user tracking', e);
+  }
+}
+
+// Get active users for admin dashboard
+window.getActiveUsers = function(){
+  try {
+    let users = JSON.parse(localStorage.getItem('activeUsers') || '[]');
+    // Filter out sessions older than 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    users = users.filter(u => u.lastSeen > fiveMinutesAgo);
+    return users;
+  } catch(e) {
+    return [];
+  }
+};
+
+// Refresh active users display (for real-time updates)
+window.refreshActiveUsers = function(){
+  const usersList = document.getElementById('activeUsersList');
+  if(!usersList) return;
+  
+  const users = window.getActiveUsers();
+  
+  if(users.length === 0){
+    usersList.innerHTML = '<div class="text-muted text-center py-3">No active users</div>';
+    return;
+  }
+
+  usersList.innerHTML = users.map((user, idx) => {
+    const lastSeenTime = new Date(user.lastSeen);
+    const minutesAgo = Math.floor((Date.now() - lastSeenTime) / 60000);
+    const timeStr = minutesAgo === 0 ? 'just now' : minutesAgo + 'm ago';
+    
+    return `
+      <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-semibold">${user.name || user.email}</div>
+          <div class="small text-slate-400">
+            <span class="badge bg-success" style="font-size:0.7rem;">● Online</span>
+            <span class="text-muted ms-2">${user.page || 'index.html'} • ${timeStr}</span>
+          </div>
+        </div>
+        <div>
+          <small class="text-slate-400">${user.email}</small>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', ()=>{
+  setupUserTracking();
+  // Auto-refresh active users display every 3 seconds if on admin users page
+  if(window.location.pathname.includes('admin-users.html')){
+    setInterval(()=>{ window.refreshActiveUsers(); }, 3000);
+  }
+});
+

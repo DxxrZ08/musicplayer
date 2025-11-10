@@ -49,7 +49,7 @@
       </div>
       <div class="col-md-4">
         <div class="p-3 glass">
-          <small>Local users (demo)</small>
+          <small>👥 Active Users (Live)</small>
           <div id="statUsers" class="fw-bold display-6">0</div>
         </div>
       </div>
@@ -91,8 +91,19 @@
 
       try {
         const users = JSON.parse(localStorage.getItem('mb_users') || '[]');
-        document.getElementById('statUsers').textContent = (users && users.length) || 0;
+        // Show active users instead
+        const activeUsers = window.getActiveUsers ? window.getActiveUsers() : [];
+        document.getElementById('statUsers').textContent = activeUsers.length || 0;
       } catch(e){ document.getElementById('statUsers').textContent = '0'; }
+
+      // Auto-refresh active users count
+      const refreshUserCount = ()=>{
+        try {
+          const activeUsers = window.getActiveUsers ? window.getActiveUsers() : [];
+          document.getElementById('statUsers').textContent = activeUsers.length || 0;
+        } catch(e){}
+      };
+      setInterval(refreshUserCount, 3000);
 
       // Recent uploads: show last 10 songs from playlist
       try {
