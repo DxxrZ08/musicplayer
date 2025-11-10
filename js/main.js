@@ -809,6 +809,12 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
       createdAt
     };
     
+    // Check if DBSTORE is available
+    if(!DBSTORE || !DBSTORE.putSong) {
+      uiToast('Database not ready. Please refresh and try again.', {type:'danger'});
+      return;
+    }
+    
     // Save to IndexedDB
     await DBSTORE.putSong(dbEntry);
     
@@ -835,8 +841,8 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
     // Redirect to manage page
     setTimeout(()=>{ window.location.href = 'admin-manage.html'; }, 1000);
   } catch(err) { 
-    console.error(err); 
-    uiToast('Upload failed: ' + err.message, {type:'danger'}); 
+    console.error('Upload error:', err); 
+    uiToast('Upload failed: ' + (err.message || err), {type:'danger'}); 
   }
 });
 
