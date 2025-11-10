@@ -25,6 +25,7 @@
         <a href="admin-reports.html">Reports</a>
       </nav>
       <div style="flex:1"></div>
+      <button id="adminLogoutBtn" class="btn btn-outline-danger w-100 mb-3" style="font-size:0.9rem;">Logout</button>
       <div class="small muted">© MusicStream</div>
     </aside>
 
@@ -43,6 +44,20 @@
         </div>
       </div>
     </main>
+
+  <script>
+    // Logout handler
+    document.addEventListener('DOMContentLoaded', function(){
+      const logoutBtn = document.getElementById('adminLogoutBtn');
+      if(logoutBtn){
+        logoutBtn.addEventListener('click', function(){
+          sessionStorage.removeItem('adminLoggedIn');
+          uiToast('Logged out', {type:'info'});
+          setTimeout(()=>{ window.location.href = 'admin-login.html'; }, 500);
+        });
+      }
+    });
+  </script>
 
   <script>
     if (!sessionStorage.getItem('adminLoggedIn')) { window.location.href = 'admin-login.html'; }

@@ -25,6 +25,7 @@
         <a href="admin-reports.html">Reports</a>
       </nav>
       <div style="flex:1"></div>
+      <button id="adminLogoutBtn" class="btn btn-outline-danger w-100 mb-3" style="font-size:0.9rem;">Logout</button>
       <div class="small muted">© MusicStream</div>
     </aside>
 
@@ -112,10 +113,23 @@
       lp.innerHTML = loginPages.map(p=>`<li class="list-group-item"><a href="${p.href}">${p.title}</a></li>`).join('');
 
       // Logout handler
-      document.getElementById('adminLogout').addEventListener('click', function(){
-        sessionStorage.removeItem('adminLoggedIn');
+      const logoutBtn = document.getElementById('adminLogoutBtn');
+      if(logoutBtn){
+        logoutBtn.addEventListener('click', function(){
+          sessionStorage.removeItem('adminLoggedIn');
+          uiToast('Logged out', {type:'info'});
+          setTimeout(()=>{ window.location.href = 'admin-login.html'; }, 500);
+        });
+      }
+    })();
+  </script>
+
+  <!-- Auth check script - runs before page loads fully -->
+  <script>
+    (function(){
+      if(!sessionStorage.getItem('adminLoggedIn')){
         window.location.href = 'admin-login.html';
-      });
+      }
     })();
   </script>
   <script src="js/admin.js"></script>
