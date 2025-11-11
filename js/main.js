@@ -234,16 +234,6 @@ async function loadFromDB(){
 }
 
 // UI population
-function populateTrending(){
-  const cont = document.getElementById('trendingGrid');
-  if(!cont) return;
-  cont.innerHTML = '';
-  window.songsDB.filter(s=>s.trending).slice(0,12).forEach(s=>{
-    const idx = window.songsDB.findIndex(x=>x.id===s.id);
-    cont.appendChild(createSongCard(s, idx));
-  });
-}
-
 // Populate home-specific sections (Made for you, New releases, Recently played)
 function populateHomeSections(){
   // Made for you: a mix of trending and other songs
@@ -709,7 +699,6 @@ document.getElementById('editForm')?.addEventListener('submit', async (e)=>{
     }
     
     await loadFromDB(); 
-    populateTrending(); 
     populateBrowse(); 
     populateManage(); 
     populateLibrary();
@@ -738,7 +727,6 @@ async function handleDelete(id){
     }
     
     await loadFromDB(); 
-    populateTrending(); 
     populateBrowse(); 
     populateManage(); 
     populateLibrary(); 
@@ -837,7 +825,6 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
     
     // Reload UI
     await loadFromDB(); 
-    populateTrending();
     populateBrowse();
     populateLibrary();
     populateManage();
@@ -859,7 +846,6 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e)=>{
 document.addEventListener('DOMContentLoaded', async ()=>{
   await loadFromDB();
   populateFilters();
-  populateTrending();
   populateBrowse();
   populateLibrary();
   populateManage();
@@ -943,7 +929,6 @@ function setupExportImport(){
         // Reload UI
         await loadFromDB();
         populateBrowse();
-        populateTrending();
         populateManage();
         populateLibrary();
         populateFilters();
