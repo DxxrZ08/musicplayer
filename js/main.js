@@ -15,7 +15,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Folk',
     trending: true,
     audioUrl: 'mp3/Pankhi Re (PenduJatt.Com.Se).mp3',
-    coverUrl: 'covers/local-1.svg',
+    coverUrl: 'https://images.pexels.com/photos/3757144/pexels-photo-3757144.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString()
   },
   {
@@ -26,7 +26,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: true,
     audioUrl: 'mp3/P-Pop Culture (PenduJatt.Com.Se).mp3',
-    coverUrl: 'covers/local-2.svg',
+    coverUrl: 'https://images.pexels.com/photos/3558618/pexels-photo-3558618.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
   },
   {
@@ -37,7 +37,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: false,
     audioUrl: 'mp3/Luv Ni Love Storys (PenduJatt.Com.Se).mp3',
-    coverUrl: 'covers/local-3.svg',
+    coverUrl: 'https://images.pexels.com/photos/3721941/pexels-photo-3721941.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString()
   },
   {
@@ -48,7 +48,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Classical',
     trending: true,
     audioUrl: 'mp3/Khalasi   Coke Studio Bharat (PenduJatt.Com.Se).mp3',
-    coverUrl: 'covers/local-4.svg',
+    coverUrl: 'https://images.pexels.com/photos/3926881/pexels-photo-3926881.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString()
   },
   {
@@ -59,7 +59,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Folk',
     trending: false,
     audioUrl: 'mp3/Garbe Ghume (PenduJatt.Com.Se).mp3',
-    coverUrl: 'covers/local-5.svg',
+    coverUrl: 'https://images.pexels.com/photos/3762516/pexels-photo-3762516.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString()
   },
   {
@@ -70,7 +70,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: false,
     audioUrl: 'mp3/For A Reason (PenduJatt.Com.Se).mp3',
-    coverUrl: 'covers/local-6.svg',
+    coverUrl: 'https://images.pexels.com/photos/3945657/pexels-photo-3945657.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString()
   },
   {
@@ -81,7 +81,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: true,
     audioUrl: 'mp3/Deewaniyat -vishal mishra.mp3',
-    coverUrl: 'covers/local-7.svg',
+    coverUrl: 'https://images.pexels.com/photos/3957987/pexels-photo-3957987.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
   },
   {
@@ -92,7 +92,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: false,
     audioUrl: 'mp3/Deewaniyat.mp3',
-    coverUrl: 'covers/local-8.svg',
+    coverUrl: 'https://images.pexels.com/photos/3721941/pexels-photo-3721941.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString()
   },
   {
@@ -103,7 +103,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: true,
     audioUrl: 'mp3/Boyfriend.mp3',
-    coverUrl: 'covers/local-9.svg',
+    coverUrl: 'https://images.pexels.com/photos/3756622/pexels-photo-3756622.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
   },
   {
@@ -114,7 +114,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Chill',
     trending: false,
     audioUrl: 'mp3/At Peace.mp3',
-    coverUrl: 'covers/local-10.svg',
+    coverUrl: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString()
   },
   {
@@ -125,7 +125,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Genre',
     trending: true,
     audioUrl: 'mp3/YourSongFile.mp3',
-    coverUrl: 'covers/local-9.svg',
+    coverUrl: 'https://images.pexels.com/photos/3756622/pexels-photo-3756622.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date().toISOString()
   }
 ];
