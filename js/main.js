@@ -81,7 +81,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: true,
     audioUrl: 'mp3/Deewaniyat -vishal mishra.mp3',
-    coverUrl: 'https://images.pexels.com/photos/3957987/pexels-photo-3957987.jpeg?auto=compress&cs=tinysrgb&w=600',
+    coverUrl: 'https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
   },
   {
