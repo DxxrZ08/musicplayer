@@ -59,7 +59,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Folk',
     trending: false,
     audioUrl: 'mp3/Garbe Ghume (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://images.pexels.com/photos/3762516/pexels-photo-3762516.jpeg?auto=compress&cs=tinysrgb&w=600',
+    coverUrl: 'https://images.pexels.com/photos/3998488/pexels-photo-3998488.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString()
   },
   {
@@ -103,7 +103,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: true,
     audioUrl: 'mp3/Boyfriend.mp3',
-    coverUrl: 'https://images.pexels.com/photos/3756622/pexels-photo-3756622.jpeg?auto=compress&cs=tinysrgb&w=600',
+    coverUrl: 'https://images.pexels.com/photos/3765522/pexels-photo-3765522.jpeg?auto=compress&cs=tinysrgb&w=600',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
   },
   {
