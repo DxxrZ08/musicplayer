@@ -141,7 +141,7 @@ function createSongCard(song, idx){
   col.innerHTML = `
     <div class="song-card p-2" data-idx="${idx}">
       <div class="play-overlay"><button class="play-btn" aria-label="Play">▶</button></div>
-      <img src="${song.cover}" class="song-cover mb-2" alt="${song.title}">
+      <img src="${song.cover}" class="song-cover mb-2" alt="${song.title}" onerror="this.src='https://via.placeholder.com/600x600/1DB954/FFFFFF?text=${encodeURIComponent(song.title)}'" style="background:#1DB954;">
       <div class="song-progress mt-2">
         <div class="song-progress-bar" style="width:0%"></div>
         <div class="song-progress-text">0%</div>
