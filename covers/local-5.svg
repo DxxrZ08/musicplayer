@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF1493;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#grad5)"/>
+  <circle cx="150" cy="150" r="80" fill="white" opacity="0.1"/>
+  <circle cx="500" cy="450" r="100" fill="white" opacity="0.15"/>
+  <text x="300" y="200" font-size="72" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">🎭</text>
+  <text x="300" y="300" font-size="52" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">Garbe Ghume</text>
+  <text x="300" y="380" font-size="36" text-anchor="middle" fill="white" font-family="Arial">aditya gadhvi</text>
+</svg>

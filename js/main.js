@@ -15,7 +15,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Folk',
     trending: true,
     audioUrl: 'mp3/Pankhi Re (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/FF6B9D/FFFFFF?text=Pankhi+Re',
+    coverUrl: 'covers/local-1.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString()
   },
   {
@@ -26,7 +26,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: true,
     audioUrl: 'mp3/P-Pop Culture (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/8B5CF6/FFFFFF?text=P-Pop+Culture',
+    coverUrl: 'covers/local-2.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
   },
   {
@@ -37,7 +37,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: false,
     audioUrl: 'mp3/Luv Ni Love Storys (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/EC4899/FFFFFF?text=Luv+Ni+Love',
+    coverUrl: 'covers/local-3.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString()
   },
   {
@@ -48,7 +48,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Classical',
     trending: true,
     audioUrl: 'mp3/Khalasi   Coke Studio Bharat (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/F59E0B/FFFFFF?text=Khalasi',
+    coverUrl: 'covers/local-4.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString()
   },
   {
@@ -59,7 +59,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Folk',
     trending: false,
     audioUrl: 'mp3/Garbe Ghume (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/FF6B9D/FFFFFF?text=Garbe+Ghume',
+    coverUrl: 'covers/local-5.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString()
   },
   {
@@ -70,7 +70,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: false,
     audioUrl: 'mp3/For A Reason (PenduJatt.Com.Se).mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/06B6D4/FFFFFF?text=For+A+Reason',
+    coverUrl: 'covers/local-6.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString()
   },
   {
@@ -81,7 +81,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: true,
     audioUrl: 'mp3/Deewaniyat -vishal mishra.mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/EF4444/FFFFFF?text=Deewaniyat',
+    coverUrl: 'covers/local-7.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
   },
   {
@@ -92,7 +92,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Romance',
     trending: false,
     audioUrl: 'mp3/Deewaniyat.mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/F97316/FFFFFF?text=Deewaniyat+2',
+    coverUrl: 'covers/local-8.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString()
   },
   {
@@ -103,7 +103,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Pop',
     trending: true,
     audioUrl: 'mp3/Boyfriend.mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/1DB954/FFFFFF?text=Boyfriend',
+    coverUrl: 'covers/local-9.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
   },
   {
@@ -114,7 +114,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Chill',
     trending: false,
     audioUrl: 'mp3/At Peace.mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/10B981/FFFFFF?text=At+Peace',
+    coverUrl: 'covers/local-10.svg',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString()
   },
   {
@@ -125,7 +125,7 @@ const LOCAL_MP3_SONGS = [
     genre: 'Genre',
     trending: true,
     audioUrl: 'mp3/YourSongFile.mp3',
-    coverUrl: 'https://via.placeholder.com/600x600/6366F1/FFFFFF?text=Your+Song',
+    coverUrl: 'covers/local-9.svg',
     createdAt: new Date().toISOString()
   }
 ];

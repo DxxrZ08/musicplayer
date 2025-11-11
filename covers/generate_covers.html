@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Album Covers</title>
+</head>
+<body>
+    <h1>Generating Album Covers...</h1>
+    <div id="output"></div>
+
+    <script>
+        // Function to create and download canvas as image
+        function createCover(title, artist, bgColor, textColor) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 600, 600);
+            gradient.addColorStop(0, bgColor);
+            gradient.addColorStop(1, adjustBrightness(bgColor, -30));
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 600);
+
+            // Add decorative pattern
+            ctx.fillStyle = textColor;
+            ctx.globalAlpha = 0.1;
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * 600, Math.random() * 600, Math.random() * 100 + 50, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Title text
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(title, 300, 250);
+
+            // Artist text
+            ctx.font = '32px Arial';
+            ctx.fillText(artist, 300, 350);
+
+            // Music note emoji
+            ctx.font = '80px Arial';
+            ctx.fillText('🎵', 300, 150);
+
+            return canvas;
+        }
+
+        function adjustBrightness(color, percent) {
+            const hex = color.replace('#', '');
+            const r = Math.max(0, Math.min(255, parseInt(hex.substr(0, 2), 16) + percent));
+            const g = Math.max(0, Math.min(255, parseInt(hex.substr(2, 2), 16) + percent));
+            const b = Math.max(0, Math.min(255, parseInt(hex.substr(4, 2), 16) + percent));
+            return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        }
+
+        const covers = [
+            { id: 'local-1', title: 'Pankhi Re', artist: 'aditya gadhvi', bg: '#FF6B9D', text: '#FFFFFF' },
+            { id: 'local-2', title: 'P-Pop Culture', artist: 'karan aujla', bg: '#8B5CF6', text: '#FFFFFF' },
+            { id: 'local-3', title: 'Luv Ni Love', artist: 'aditya gadhvi', bg: '#EC4899', text: '#FFFFFF' },
+            { id: 'local-4', title: 'Khalasi', artist: 'aditya gadhvi', bg: '#F59E0B', text: '#FFFFFF' },
+            { id: 'local-5', title: 'Garbe Ghume', artist: 'aditya gadhvi', bg: '#FF6B9D', text: '#FFFFFF' },
+            { id: 'local-6', title: 'For A Reason', artist: 'karan aujla', bg: '#06B6D4', text: '#FFFFFF' },
+            { id: 'local-7', title: 'Deewaniyat', artist: 'Vishal Mishra', bg: '#EF4444', text: '#FFFFFF' },
+            { id: 'local-8', title: 'Deewaniyat 2', artist: 'Unknown', bg: '#F97316', text: '#FFFFFF' },
+            { id: 'local-9', title: 'Boyfriend', artist: 'karan aujla', bg: '#1DB954', text: '#FFFFFF' },
+            { id: 'local-10', title: 'At Peace', artist: 'karan aujla', bg: '#10B981', text: '#FFFFFF' },
+        ];
+
+        let html = '<h2>Created Covers:</h2><ul>';
+        covers.forEach(cover => {
+            const canvas = createCover(cover.title, cover.artist, cover.bg, cover.text);
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `${cover.id}.png`;
+            html += `<li><a href="${link.href}" download="${cover.id}.png">${cover.title} (${cover.id})</a></li>`;
+        });
+        html += '</ul>';
+        document.getElementById('output').innerHTML = html;
+    </script>
+</body>
+</html>

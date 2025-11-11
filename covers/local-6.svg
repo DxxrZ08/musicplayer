@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#grad6)"/>
+  <circle cx="100" cy="500" r="90" fill="white" opacity="0.1"/>
+  <circle cx="550" cy="100" r="110" fill="white" opacity="0.15"/>
+  <text x="300" y="200" font-size="72" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">⭐</text>
+  <text x="300" y="300" font-size="52" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">For A Reason</text>
+  <text x="300" y="380" font-size="36" text-anchor="middle" fill="white" font-family="Arial">karan aujla</text>
+</svg>
