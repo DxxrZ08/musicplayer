@@ -135,6 +135,8 @@ function createSongCard(song, idx){
   const col = document.createElement('div');
   col.className = 'col-6 col-sm-4 col-md-3';
   
+  console.log('Creating song card for:', {id: song.id, title: song.title, cover: song.cover, idx: idx, className: col.className});
+  
   // Format creation date
   const createdDate = song.createdAt ? new Date(song.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A';
   
@@ -241,6 +243,7 @@ function populateHomeSections(){
   if(made){
     made.innerHTML = '';
     const picks = window.songsDB.slice(0,8);
+    console.log('Made for You: Got', picks.length, 'songs from first 8:', picks.map(s => ({id: s.id, title: s.title, cover: s.cover})));
     picks.forEach(s=>{ const idx = window.songsDB.findIndex(x=>x.id===s.id); made.appendChild(createSongCard(s, idx)); });
   }
 
@@ -249,6 +252,7 @@ function populateHomeSections(){
   if(newRel){
     newRel.innerHTML = '';
     const ordered = window.songsDB.slice().sort((a,b)=> (new Date(b.createdAt||0) - new Date(a.createdAt||0))).slice(0,8);
+    console.log('New Releases: Got', ordered.length, 'songs sorted by date:', ordered.map(s => ({id: s.id, title: s.title, cover: s.cover})));
     ordered.forEach(s=>{ const idx = window.songsDB.findIndex(x=>x.id===s.id); newRel.appendChild(createSongCard(s, idx)); });
   }
 
